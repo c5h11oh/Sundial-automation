@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+# build_sundial_image.sh: script that build up necessary components (and helpful tools) for Sundial -
+
+# 0. copy automation scripts
+sudo mkdir /opt/db
+sudo chown $USER /opt/db
+mkdir /opt/db/automation
+cp build_sundial_image.sh description.sh initialize.sh setup_sundial.sh redis.conf.modified /opt/db/automation/
+chmod +x /opt/db/automation/*.sh
+
+# 1. install sundial in /opt/db
+cd /opt/db
+echo "Type in the Sundial git repository: [https://github.com/ScarletGuo/Sundial.git]"
+read repo
+if [[ -z "$repo" ]]; then
+    git clone https://github.com/ScarletGuo/Sundial.git
+else
+    git clone $repo
+fi
+cd Sundial
+export SUNDIAL=`pwd`
+echo "List of Sundial branches"
+git branch -r
+echo -n "Select the branch to build from: [sven_debug]: "
+read branch
+if [[ -z "$branch" ]]; then
+    git checkout sven_debug
+else
+    git checkout $branch
+fi
+
+# 2. init.sh: apt-get update and install packages
+# Copied from init.sh made by Kan Wu with some modification
+sudo apt-get update
+sudo apt-get install -y software-properties-common
+# sudo apt-get install -y python-software-properties # software-properties-common replaced it
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+sudo add-apt-repository -y 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main'
+sudo apt-get update
+sudo apt-get install -y build-essential gcc g++ clang lldb lld gdb cmake git protobuf-compiler libprotobuf-dev flex bison libnuma-dev curl libjemalloc-dev python3-pip dstat vim htop vagrant
+sudo apt install -y openjdk-8-jre-headless cgroup-tools numactl
+pip3 install --upgrade pip
+pip3 install pandas
+echo "set tabstop=4" > ~/.vimrc
+
+# 3. init.sh: clone and make redis in Sundial
+# Copied from init.sh made by Kan Wu 
+git clone https://github.com/redis/redis.git
+cd redis
+make
+
+# 4. modify tools/conf.sh --- changes the "/opt/db/Sundial/libs/" line
+cd $SUNDIAL/tools
+echo "cd /etc/ld.so.conf.d" | tee ./conf.sh
+echo "echo \"/opt/db/Sundial/libs/\" | sudo tee -a other.conf" | tee -a ./conf.sh
+echo "echo \"/usr/local/lib\" | sudo tee -a other.conf" | tee -a ./conf.sh
+echo "echo \"/usr/lib/x86_64-linux-gnu/\" | sudo tee -a other.conf" | tee -a ./conf.sh
+echo "sudo /sbin/ldconfig" | tee -a ./conf.sh
+
+# 5. mkdir /opt/db/redis_data
+mkdir /opt/db/redis_data
+
+# 6. rename redis.conf to redis.conf.default and copy modified redis.conf
+mv $SUNDIAL/redis/redis.conf $SUNDIAL/redis/redis.conf.default
+cp /opt/db/automation/redis.conf.modified $SUNDIAL/redis/redis.conf
+
+# 7. chmod +x *.sh in Sundial/ and Sundial/tools/
+chmod +x $SUNDIAL/*.sh $SUNDIAL/tools/*.sh
+
+# 8. run setup.sh
+cd $SUNDIAL
+if [[ -z "$branch" ]]; then
+    git checkout grpc-1pc-redis-dev
+else
+    git checkout $branch
+fi
+./setup.sh
