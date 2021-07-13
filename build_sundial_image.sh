@@ -11,10 +11,10 @@ chmod +x /opt/db/automation/*.sh
 
 # 1. install sundial in /opt/db
 cd /opt/db
-echo "Type in the Sundial git repository: [https://github.com/ScarletGuo/Sundial.git]"
+echo "Type in the Sundial git repository: [https://github.com/c5h11oh/Sundial.git]"
 read repo
 if [[ -z "$repo" ]]; then
-    git clone https://github.com/ScarletGuo/Sundial.git
+    git clone https://github.com/c5h11oh/Sundial.git
 else
     git clone $repo
 fi
@@ -22,10 +22,10 @@ cd Sundial
 export SUNDIAL=`pwd`
 echo "List of Sundial branches"
 git branch -r
-echo -n "Select the branch to build from: [sven_debug]: "
+echo -n "Select the branch to build from: [grpc-1pc-redis-ssl-dev]: "
 read branch
 if [[ -z "$branch" ]]; then
-    git checkout sven_debug
+    git checkout grpc-1pc-redis-ssl-dev
 else
     git checkout $branch
 fi
@@ -49,7 +49,8 @@ echo "set tabstop=4" > ~/.vimrc
 # Copied from init.sh made by Kan Wu 
 git clone https://github.com/redis/redis.git
 cd redis
-make
+git checkout 6.2
+make BUILD_TLS=yes -j6
 
 # 4. modify tools/conf.sh --- changes the "/opt/db/Sundial/libs/" line
 cd $SUNDIAL/tools
