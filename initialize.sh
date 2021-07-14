@@ -1,5 +1,6 @@
 # initialize.sh: script automatically runned during cloudlab initialization -
 
+# Don't run this script directly. Run setup_sundial.sh instead
 # 1. link Sundial to the home directory
 ln -s /opt/db/Sundial ~/Sundial
 
