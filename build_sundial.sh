@@ -6,15 +6,15 @@
 sudo mkdir /opt/db
 sudo chown $USER /opt/db
 mkdir /opt/db/automation
-cp build_sundial_image.sh description.sh initialize.sh setup_sundial.sh redis.conf.modified /opt/db/automation/
+cp build_sundial_image.sh initialize.sh setup_sundial.sh redis.conf.modified /opt/db/automation/
 chmod +x /opt/db/automation/*.sh
 
 # 1. install sundial in /opt/db
 cd /opt/db
-echo "Type in the Sundial git repository: [https://github.com/c5h11oh/Sundial.git]"
+echo "Type in the Sundial git repository: [https://github.com/ScarletGuo/Sundial.git]"
 read repo
 if [[ -z "$repo" ]]; then
-    git clone https://github.com/c5h11oh/Sundial.git
+    git clone https://github.com/ScarletGuo/Sundial.git
 else
     git clone $repo
 fi
@@ -22,10 +22,10 @@ cd Sundial
 export SUNDIAL=`pwd`
 echo "List of Sundial branches"
 git branch -r
-echo -n "Select the branch to build from: [grpc-1pc-redis-ssl-dev]: "
+echo -n "Select the branch to build from: [1pc-azure-blob-dev]: "
 read branch
 if [[ -z "$branch" ]]; then
-    git checkout grpc-1pc-redis-ssl-dev
+    git checkout 1pc-azure-blob-dev
 else
     git checkout $branch
 fi
@@ -47,6 +47,7 @@ echo "set tabstop=4" > ~/.vimrc
 
 # 3. init.sh: clone and make redis in Sundial
 # Copied from init.sh made by Kan Wu 
+cd /opt/db
 git clone https://github.com/redis/redis.git
 cd redis
 git checkout 6.2
@@ -64,7 +65,7 @@ echo "sudo /sbin/ldconfig" | tee -a ./conf.sh
 mkdir /opt/db/redis_data
 
 # 6. rename redis.conf to redis.conf.default and copy modified redis.conf
-mv $SUNDIAL/redis/redis.conf $SUNDIAL/redis/redis.conf.default
+mv /opt/db/redis/redis.conf /opt/db/redis/redis.conf.default
 cp /opt/db/automation/redis.conf.modified $SUNDIAL/redis/redis.conf
 
 # 7. chmod +x *.sh in Sundial/ and Sundial/tools/
@@ -72,9 +73,4 @@ chmod +x $SUNDIAL/*.sh $SUNDIAL/tools/*.sh
 
 # 8. run setup.sh
 cd $SUNDIAL
-if [[ -z "$branch" ]]; then
-    git checkout grpc-1pc-redis-dev
-else
-    git checkout $branch
-fi
 ./setup.sh
