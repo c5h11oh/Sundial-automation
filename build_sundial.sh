@@ -6,7 +6,7 @@
 sudo mkdir /opt/db
 sudo chown $USER /opt/db
 mkdir /opt/db/automation
-cp build_sundial_image.sh initialize.sh setup_sundial.sh redis.conf.modified /opt/db/automation/
+cp build_sundial.sh make_soft_link.sh ssh_keys_git_credential.sh redis.conf.modified /opt/db/automation/
 chmod +x /opt/db/automation/*.sh
 
 # 1. install sundial in /opt/db
