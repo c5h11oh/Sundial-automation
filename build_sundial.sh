@@ -39,11 +39,19 @@ sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
 sudo add-apt-repository -y 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main'
 sudo apt-get update
-sudo apt-get install -y build-essential gcc g++ clang lldb lld gdb cmake git protobuf-compiler libprotobuf-dev flex bison libnuma-dev curl libjemalloc-dev python3-pip dstat vim htop vagrant
+sudo apt-get install -y build-essential gcc g++ clang lldb lld gdb cmake git protobuf-compiler libprotobuf-dev flex bison libnuma-dev curl libjemalloc-dev python3-pip dstat vim htop vagrant tar zip unzip pkg-config
 sudo apt install -y openjdk-8-jre-headless cgroup-tools numactl
 pip3 install --upgrade pip
 pip3 install pandas
 echo "set tabstop=4" > ~/.vimrc
+
+# 2.5. vcpkg & azure-storage-cpp 
+git clone https://github.com/microsoft/vcpkg
+cd vcpkg && git checkout 2021.05.12 && cd ..
+./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+./vcpkg/vcpkg install azure-storage-cpp
+./vcpkg/vcpkg list
+./vcpkg/vcpkg integrate install
 
 # 3. init.sh: clone and make redis in Sundial
 # Copied from init.sh made by Kan Wu 
