@@ -46,6 +46,7 @@ pip3 install pandas
 echo "set tabstop=4" > ~/.vimrc
 
 # 2.5. vcpkg & azure-storage-cpp 
+cd
 git clone https://github.com/microsoft/vcpkg
 cd vcpkg && git checkout 2021.05.12 && cd ..
 ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
