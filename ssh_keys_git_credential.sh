@@ -5,9 +5,6 @@
 # 0. echo "only run this on node0. press enter"
 read -p "This script is intended to be run only on node0. Press enter to continue."
 
-# 0.5 run initialize.sh
-/opt/db/automation/initialize.sh
-
 # 1. ask name and email for github settings and key generation
 # Copied from init.sh made by Kan Wu with some modification
 echo "Please enter your email. This is only used for setting up ssh-key and git user.email"
@@ -46,8 +43,9 @@ for addr in "${address[@]}"; do
     if [[ $addr == ${address[0]} ]]; then
         continue
     else
-        ssh $addr "/opt/db/automation/initialize.sh && git config --global user.name \"$name\" && git config --global user.email \"$email\""
-        ssh $addr "sudo rm /users/$USER/.ssh/id_ed25519 && ssh-keygen -t ed25519 -C \"$email\""
+        ssh $addr "git config --global user.name \"$name\" && git config --global user.email \"$email\""
+        ssh $addr "sudo rm /users/$USER/.ssh/id_ed25519"
+        ssh $addr "ssh-keygen -t ed25519 -C \"$email\""
         ssh $addr "cat /users/$USER/.ssh/id_ed25519.pub" >> /opt/db/pubkeys.txt
     fi
 done
